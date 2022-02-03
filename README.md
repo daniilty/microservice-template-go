@@ -15,7 +15,7 @@ func (m *mongoPinger) Ping(ctx context.Context) {
   return client.Ping(ctx, readpref.Primary())
 }
 ```
-./internal/healthcheck/info.go:
+./internal/healthcheck/options.go:
 ```go
 func WithMongoPinger(pinger db.Pinger) func(*checker) {
 	return func(c *checker) {
