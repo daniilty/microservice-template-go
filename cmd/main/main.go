@@ -28,13 +28,24 @@ func run() (int, error) {
 		return exitCodeNotOK, err
 	}
 
+	loggerCfg := zap.NewProductionConfig()
+
+	logger, err := loggerCfg.Build()
+	if err != nil {
+		return exitCodeNotOK, err
+	}
+
+	sugared := logger.Sugar()
+
 	appInfo := healthcheck.NewChecker(healthcheck.WithDBPinger(db.NewPinger()))
 
 	http.DefaultServeMux.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) {
 		bb, err := json.Marshal(appInfo.Check())
 		if err != nil {
+			sugared.Errorw("Health check.", "err", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(http.StatusText(http.StatusInternalServerError)))
+
 			return
 		}
 
@@ -48,15 +59,6 @@ func run() (int, error) {
 	}
 
 	wg := &sync.WaitGroup{}
-
-	loggerCfg := zap.NewProductionConfig()
-
-	logger, err := loggerCfg.Build()
-	if err != nil {
-		return exitCodeNotOK, err
-	}
-
-	sugared := logger.Sugar()
 
 	wg.Add(1)
 	go func() {

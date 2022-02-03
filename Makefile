@@ -1,3 +1,4 @@
+DOCKER_TAG = microservice-template:latest
 MODULE = github.com/daniilty/microservice-template-go
 BRANCH ?=$(shell git describe --tags --exact-match 2>/dev/null || git symbolic-ref -q --short HEAD)
 COMMIT_HASH ?= $(shell git rev-parse --short HEAD 2>/dev/null)
@@ -6,4 +7,6 @@ LDFLAGS += -X ${MODULE}/internal/healthcheck.Branch=${BRANCH} -X ${MODULE}/inter
 
 build:
 	go build -ldflags "${LDFLAGS}" -o service ${MODULE}/cmd/main
+build_docker:
+	docker build -t ${DOCKER_TAG} -f ./docker/Dockerfile .
 
